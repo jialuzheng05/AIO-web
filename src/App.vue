@@ -1739,7 +1739,13 @@ const sources: Source[] = [
 
                   <section class="plan-c4-detail-section plan-c4-abstract-section">
                     <h3>Abstract</h3>
-                    <p class="plan-c4-abstract" :class="{ collapsed: !isPlanCAbstractExpanded }">
+                    <p
+                      v-if="isPlanC5Selected"
+                      class="plan-c4-abstract"
+                    >
+                      {{ selectedPlanCSource.abstractIntro }} {{ selectedPlanCSource.abstractMore }}
+                    </p>
+                    <p v-else class="plan-c4-abstract" :class="{ collapsed: !isPlanCAbstractExpanded }">
                       {{ selectedPlanCSource.abstractIntro }}
                       <template v-if="isPlanCAbstractExpanded">{{ ` ${selectedPlanCSource.abstractMore}` }}</template>
                       <button type="button" @click="isPlanCAbstractExpanded = !isPlanCAbstractExpanded">
