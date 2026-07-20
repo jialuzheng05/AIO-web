@@ -526,7 +526,18 @@ svg {
 }
 
 .plan-c5-page {
-  overflow: hidden;
+  overflow: visible;
+}
+
+.plan-c5-page .plan-c-input-pane {
+  position: relative;
+  z-index: 120;
+  overflow: visible;
+}
+
+.plan-c5-page .plan-c-empty-pane {
+  position: relative;
+  z-index: 20;
 }
 
 .plan-c5-page-active .plan-c-input-pane {
@@ -2061,6 +2072,10 @@ svg {
 .plan-c-results-bar .filter-menu,
 .plan-c-results-bar .sort-menu {
   z-index: 80;
+}
+
+.plan-c5-results-bar .filter-menu {
+  z-index: 999;
 }
 
 .plan-c-results-bar .filter-menu {

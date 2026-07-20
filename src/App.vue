@@ -1694,7 +1694,7 @@ const sources: Source[] = [
                     <p>{{ selectedPlanCSource.year }} &middot; {{ selectedPlanCSource.detailAuthor }} &middot; {{ selectedPlanCSource.venue }} &middot; {{ selectedPlanCSource.type }}</p>
                     <div class="plan-c4-detail-actions">
                       <button type="button"><img :src="citeIcon" alt="" />Cite</button>
-                      <button type="button">
+                      <button v-if="!isPlanC5Selected" type="button">
                         <svg viewBox="0 0 20 20" aria-hidden="true">
                           <path d="M8.5 11.5 11.5 8.5M7.2 8.8l-1.1 1.1a3 3 0 0 0 4.2 4.2l1.1-1.1M12.8 11.2l1.1-1.1a3 3 0 0 0-4.2-4.2L8.6 7" />
                         </svg>
