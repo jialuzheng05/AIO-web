@@ -6,6 +6,7 @@ import historyIcon from './assets/history_2.svg'
 import listArrowIcon from './assets/list_arrow.svg'
 import PlanC2Loading from './prototypes/PlanC2Loading.vue'
 import PlanC3Loading from './prototypes/PlanC3Loading.vue'
+import PlanC4Loading from './prototypes/PlanC4Loading.vue'
 
 type NavItem = {
   label: string
@@ -71,6 +72,23 @@ const planCSuggestions = [
   'How does sleep paralysis affect mental wellbeing?',
   'Metacognition differences between novices and experts',
 ]
+const planC3PromptCards = [
+  {
+    kind: 'Topic',
+    icon: 'hash',
+    text: 'Educational data science in higher education',
+  },
+  {
+    kind: 'Assignment',
+    icon: 'notebook',
+    text: 'Write a literature review examining the relationship between learning analytics and student success.',
+  },
+  {
+    kind: 'Question',
+    icon: 'question',
+    text: 'How does sleep paralysis affect mental wellbeing?',
+  },
+]
 const planCGenerationSteps = [
   'Understanding your research question',
   'Searching academic sources',
@@ -78,21 +96,30 @@ const planCGenerationSteps = [
   'Preparing your results',
 ]
 
-const projects = ['AI Research 方案C', 'AI Research 方案C-2', 'AI Research 方案C-3', 'AI Research', 'AI Research 方案B'] as const
+const projects = ['AI Research 方案C', 'AI Research 方案C-2', 'AI Research 方案C-3', 'AI Research 方案C-4', 'AI Research 方案C-5', 'AI research 方案A', 'AI Research 方案B'] as const
 type ProjectName = (typeof projects)[number]
 const debugProjectOptions: Array<{ label: string; project: ProjectName }> = [
+  { label: '方案A', project: 'AI research 方案A' },
   { label: '方案C', project: 'AI Research 方案C' },
   { label: '方案C-2', project: 'AI Research 方案C-2' },
   { label: '方案C-3', project: 'AI Research 方案C-3' },
+  { label: '方案C-4', project: 'AI Research 方案C-4' },
+  { label: '方案C-5', project: 'AI Research 方案C-5' },
 ]
-const selectedProject = ref<ProjectName>('AI Research 方案C')
+const selectedProject = ref<ProjectName>('AI Research 方案C-5')
 const isPlanBSelected = computed(() => selectedProject.value === 'AI Research 方案B')
 const isPlanC2Selected = computed(() => selectedProject.value === 'AI Research 方案C-2')
 const isPlanC3Selected = computed(() => selectedProject.value === 'AI Research 方案C-3')
+const isPlanC4Selected = computed(() => selectedProject.value === 'AI Research 方案C-4')
+const isPlanC5Selected = computed(() => selectedProject.value === 'AI Research 方案C-5')
+const isPlanC4LikeSelected = computed(() => isPlanC4Selected.value || isPlanC5Selected.value)
+const isPlanCAdvancedSelected = computed(() => isPlanC3Selected.value || isPlanC4LikeSelected.value)
 const isPlanCSelected = computed(() =>
   selectedProject.value === 'AI Research 方案C' ||
   selectedProject.value === 'AI Research 方案C-2' ||
-  selectedProject.value === 'AI Research 方案C-3',
+  selectedProject.value === 'AI Research 方案C-3' ||
+  selectedProject.value === 'AI Research 方案C-4' ||
+  selectedProject.value === 'AI Research 方案C-5',
 )
 const planCQuery = ref('')
 const hasPlanCQuery = computed(() => planCQuery.value.trim().length > 0)
@@ -103,9 +130,12 @@ const planCGeneratingStep = ref(0)
 const selectedPlanCSourceIndex = ref(0)
 const isPlanCSourceLoading = ref(false)
 const isPlanCAbstractExpanded = ref(false)
+const isPlanC5InlineLoading = ref(false)
+const isPlanAAbstractExpanded = ref(false)
 const selectedResultView = ref<'Result' | 'Sources'>('Result')
 const expandedQuoteSourceKey = ref<string | null>(null)
 const expandedPlanASourceKey = ref<string | null>(null)
+const selectedPlanASource = ref<Source | null>(null)
 const isProjectMenuOpen = ref(false)
 const projectMenuRef = ref<HTMLElement | null>(null)
 
@@ -160,6 +190,7 @@ const referenceCards: ReferenceCard[] = [
 const planCResultSources = [
   {
     title: 'Educational data science in higher education: learning analytics, data mining, and institutional decision-making',
+    cardTitle: ['Educational data science in higher education'],
     tags: ['Peer-reviewed', 'Open Access', '1,240 Citations'],
     snapshot:
       'Maps how universities use learning analytics, educational data mining, and institutional data to improve teaching, retention, and student support.',
@@ -172,12 +203,8 @@ const planCResultSources = [
       'This study reviews how educational data science is used in higher education to interpret learning traces, model student engagement, and support institutional decision-making.',
     abstractMore:
       'It highlights learning management system activity, assessment records, advising data, and course interaction logs as common data sources, while emphasizing that analytics must be paired with ethical governance, transparent interventions, and instructor-facing workflows.',
-    usefulReasons: [
-      'Defining educational data science within higher education contexts',
-      'Explaining how learning analytics and data mining support student success',
-      'Connecting institutional dashboards with teaching and advising decisions',
-      'Discussing privacy, bias, and governance constraints for student data',
-    ],
+    usefulSummary:
+      'This source is useful for the background and framing section of a paper on educational data science. It explains how learning analytics, data mining, and institutional decision-making connect in higher education, so it can support claims about why student data needs both technical modeling and human intervention workflows.',
     findings: [
       {
         quote:
@@ -193,6 +220,7 @@ const planCResultSources = [
   },
   {
     title: 'Learning analytics dashboards and student success interventions in universities',
+    cardTitle: ['Learning analytics dashboards and student success'],
     tags: ['Peer-reviewed', 'Open Access', '986 Citations'],
     snapshot:
       'Shows how dashboards translate course activity and performance signals into actionable support for instructors, advisors, and students.',
@@ -205,12 +233,8 @@ const planCResultSources = [
       'This paper examines learning analytics dashboards as a practical layer between educational data science models and day-to-day student support in higher education.',
     abstractMore:
       'The authors describe how visual indicators, risk flags, and engagement summaries can help educators prioritize outreach, but caution that dashboards should explain the meaning of metrics and avoid reducing students to scores.',
-    usefulReasons: [
-      'Describing dashboard use cases for higher education analytics',
-      'Linking data visualizations to advising and teaching interventions',
-      'Supporting claims about early-alert systems and student engagement',
-      'Identifying limitations of risk scoring without contextual explanation',
-    ],
+    usefulSummary:
+      'This source fits well in a section about practical applications of educational data science. It contributes evidence for how dashboards turn raw student activity data into decisions teachers and advisors can act on, making it useful when arguing that analytics tools need to be designed around real intervention moments.',
     findings: [
       {
         quote:
@@ -226,6 +250,7 @@ const planCResultSources = [
   },
   {
     title: 'Predictive models for student retention using educational data science',
+    cardTitle: ['Predictive models for student retention'],
     tags: ['Peer-reviewed', 'Method Study', '742 Citations'],
     snapshot:
       'Compares predictive modeling approaches for identifying retention risk across course activity, assessment, and advising datasets.',
@@ -238,12 +263,8 @@ const planCResultSources = [
       'This article studies how predictive models can support student retention by combining behavioral, demographic, and assessment signals in higher education.',
     abstractMore:
       'It evaluates model interpretability, false positive risks, and the importance of intervention timing when analytics are used by advising teams.',
-    usefulReasons: [
-      'Explaining prediction tasks in educational data science',
-      'Comparing course-level and institution-level retention indicators',
-      'Discussing how advisors act on risk predictions',
-      'Highlighting interpretability concerns in student success models',
-    ],
+    usefulSummary:
+      'This article is best used in a methods or model-evaluation section. It helps explain how predictive models identify retention risk, what kinds of student signals are useful, and why interpretability matters when analytics results are handed to advisors or student support teams.',
     findings: [
       {
         quote:
@@ -259,6 +280,7 @@ const planCResultSources = [
   },
   {
     title: 'Ethics, privacy, and governance for learning analytics in higher education',
+    cardTitle: ['Ethics, privacy, and learning analytics'],
     tags: ['Peer-reviewed', 'Policy Review', '618 Citations'],
     snapshot:
       'Reviews ethical governance practices for using student data in analytics systems, with emphasis on transparency, consent, and bias mitigation.',
@@ -271,12 +293,8 @@ const planCResultSources = [
       'This review examines the ethical and governance challenges that arise when higher education institutions deploy learning analytics and educational data science tools.',
     abstractMore:
       'The authors focus on privacy, student consent, algorithmic bias, explainability, and institutional accountability as necessary conditions for responsible analytics adoption.',
-    usefulReasons: [
-      'Framing privacy and consent issues in student data use',
-      'Supporting arguments about responsible analytics governance',
-      'Connecting model bias with institutional accountability',
-      'Explaining why transparency matters for student trust',
-    ],
+    usefulSummary:
+      'This source is useful for the ethics and limitations section of the paper. It contributes arguments about privacy, consent, bias, and accountability, helping show that educational data science should not only optimize predictions but also protect student trust and institutional responsibility.',
     findings: [
       {
         quote:
@@ -293,6 +311,89 @@ const planCResultSources = [
 ]
 
 const selectedPlanCSource = computed(() => planCResultSources[selectedPlanCSourceIndex.value])
+const getPlanCUsefulFirstSentence = (source: (typeof planCResultSources)[number]) =>
+  source.usefulSummary.split('. ')[0]?.replace(/\.$/, '') ?? source.usefulSummary
+const shouldUseShortPlanCTitle = computed(() => isPlanC3Selected.value || isPlanC4LikeSelected.value)
+const getPlanCDisplayTitle = (source: (typeof planCResultSources)[number]) =>
+  shouldUseShortPlanCTitle.value ? source.cardTitle.join(' ') : source.title
+const getPlanC4CardTags = (source: (typeof planCResultSources)[number]) => {
+  const citationTag = source.tags.find((tag) => tag.includes('Citations'))
+  const otherTags = source.tags.filter((tag) => tag !== citationTag)
+
+  return citationTag ? [citationTag, ...otherTags] : source.tags
+}
+const getPlanC5CardTags = (source: (typeof planCResultSources)[number]) => {
+  const citationTag = source.tags.find((tag) => tag.includes('Citations'))
+  const otherTags = source.tags.filter((tag) => tag !== citationTag)
+
+  return citationTag ? [...otherTags, citationTag] : source.tags
+}
+const planCResultCardRefs = ref<HTMLElement[]>([])
+const setPlanCResultCardRef = (element: unknown, index: number) => {
+  if (element instanceof HTMLElement) planCResultCardRefs.value[index] = element
+}
+const selectedPlanCSnapshotRows = computed(() => {
+  const rows = [
+    [
+      {
+        field: 'Methods',
+        value: 'Review of LMS traces, assessment records, advising data, and institutional decision workflows.',
+      },
+      {
+        field: 'Outcomes',
+        value: 'Clearer student-risk signals and more actionable support paths for instructors and advisors.',
+      },
+      {
+        field: 'Results',
+        value: 'Educational data science improves decisions when analytics connect to transparent interventions.',
+      },
+    ],
+    [
+      {
+        field: 'Methods',
+        value: 'Dashboard evaluation using course activity indicators, engagement summaries, and staff interviews.',
+      },
+      {
+        field: 'Outcomes',
+        value: 'Instructors and advisors gained faster visibility into participation gaps and support priorities.',
+      },
+      {
+        field: 'Results',
+        value: 'Dashboards were most useful when metrics were easy to interpret and tied to specific actions.',
+      },
+    ],
+    [
+      {
+        field: 'Methods',
+        value: 'Predictive modeling comparison across behavioral traces, assessment results, and advising records.',
+      },
+      {
+        field: 'Outcomes',
+        value: 'Earlier detection of retention risk with stronger explanations for why a student was flagged.',
+      },
+      {
+        field: 'Results',
+        value: 'Retention models became more useful when paired with timely outreach and interpretable features.',
+      },
+    ],
+    [
+      {
+        field: 'Methods',
+        value: 'Policy review of privacy, consent, explainability, bias, and governance practices in analytics.',
+      },
+      {
+        field: 'Outcomes',
+        value: 'A clearer framework for responsible student-data use across institutional analytics programs.',
+      },
+      {
+        field: 'Results',
+        value: 'Trust improves when institutions explain data collection, model use, and accountability safeguards.',
+      },
+    ],
+  ]
+
+  return rows[selectedPlanCSourceIndex.value] ?? rows[0]
+})
 
 const toggleProjectMenu = () => {
   isProjectMenuOpen.value = !isProjectMenuOpen.value
@@ -303,6 +404,7 @@ const toggleProjectMenu = () => {
 const selectProject = (project: ProjectName) => {
   selectedProject.value = project
   isProjectMenuOpen.value = false
+  selectedPlanASource.value = null
 
   if (project === 'AI Research 方案B') {
     selectedResultView.value = 'Result'
@@ -434,6 +536,21 @@ const togglePlanAExpansion = (source: Source) => {
   expandedPlanASourceKey.value = expandedPlanASourceKey.value === sourceKey ? null : sourceKey
 }
 
+const openPlanASourceDetail = (source: Source) => {
+  if (isPlanBSelected.value || isPlanCSelected.value) return
+
+  selectedPlanASource.value = source
+  expandedPlanASourceKey.value = null
+  isPlanAAbstractExpanded.value = false
+  isSortMenuOpen.value = false
+  isFilterMenuOpen.value = false
+}
+
+const closePlanASourceDetail = () => {
+  selectedPlanASource.value = null
+  isPlanAAbstractExpanded.value = false
+}
+
 const clearPlanCSearchTimers = () => {
   planCSearchTimers.forEach((timer) => window.clearTimeout(timer))
   planCSearchTimers = []
@@ -448,6 +565,8 @@ const clearPlanCSourceLoadingTimer = () => {
 
 const runPlanCSearch = () => {
   if (!hasPlanCQuery.value) return
+
+  isPlanC5InlineLoading.value = isPlanC5Selected.value && hasPlanCResults.value
 
   clearPlanCSearchTimers()
   clearPlanCSourceLoadingTimer()
@@ -473,6 +592,7 @@ const runPlanCSearch = () => {
     isPlanCGenerating.value = false
     hasPlanCResults.value = true
     planCGeneratingStep.value = 0
+    isPlanC5InlineLoading.value = false
     planCSearchTimers = []
   }, stepDuration * planCGenerationSteps.length + 500)
 
@@ -484,11 +604,18 @@ const selectPlanCSource = (index: number) => {
 
   clearPlanCSourceLoadingTimer()
   selectedPlanCSourceIndex.value = index
+  if (isPlanC4LikeSelected.value) {
+    requestAnimationFrame(() => {
+      planCResultCardRefs.value[index]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
   isPlanCSourceLoading.value = true
+  isPlanC5InlineLoading.value = isPlanC5Selected.value
   isPlanCAbstractExpanded.value = false
 
   planCSourceLoadingTimer = window.setTimeout(() => {
     isPlanCSourceLoading.value = false
+    isPlanC5InlineLoading.value = false
     planCSourceLoadingTimer = null
   }, 650)
 }
@@ -501,9 +628,14 @@ const clearPlanCSearch = () => {
   isPlanCGenerating.value = false
   hasPlanCResults.value = false
   isPlanCSourceLoading.value = false
+  isPlanC5InlineLoading.value = false
   planCGeneratingStep.value = 0
   selectedPlanCSourceIndex.value = 0
   isPlanCAbstractExpanded.value = false
+}
+
+const clearPlanCQueryOnly = () => {
+  planCQuery.value = ''
 }
 
 const openCitationDialog = (source: Source) => {
@@ -1015,10 +1147,32 @@ const sources: Source[] = [
             </button>
           </div>
 
-          <div class="plan-c-input-page">
-            <section class="plan-c-input-pane">
+          <div
+            class="plan-c-input-page"
+            :class="{
+              'plan-c-input-page-no-divider': isPlanC4LikeSelected,
+              'plan-c4-page': isPlanC4Selected,
+              'plan-c5-page': isPlanC5Selected,
+              'plan-c5-page-active': isPlanC5Selected && isPlanCSearchActive,
+            }"
+          >
+            <section
+              class="plan-c-input-pane"
+              :class="{ 'plan-c5-input-pane': isPlanC5Selected && !isPlanCSearchActive }"
+            >
               <div class="plan-c-input-header">
-                <h2>{{ isPlanCGenerating ? 'Finding relevant sources...' : isPlanCSearchActive ? 'Your Search' : 'Find Sources for Your Paper' }}</h2>
+                <button
+                  v-if="isPlanC5Selected && isPlanCSearchActive"
+                  class="plan-c5-back-button"
+                  type="button"
+                  @click="clearPlanCSearch"
+                >
+                  <svg viewBox="0 0 14 14" aria-hidden="true">
+                    <path d="M8.8 3.2 5 7l3.8 3.8" />
+                  </svg>
+                  Back
+                </button>
+                <h2 v-else>{{ isPlanCGenerating ? 'Finding relevant sources...' : isPlanCSearchActive || isPlanC5Selected ? 'Your Search' : 'Find Sources for Your Paper' }}</h2>
                 <div class="plan-c-header-actions">
                   <button class="plan-c-saved" type="button">
                     <img :src="collectIcon" alt="" />
@@ -1033,43 +1187,161 @@ const sources: Source[] = [
               </div>
 
               <template v-if="!isPlanCSearchActive">
-                <textarea
-                  v-model="planCQuery"
-                  class="plan-c-topic-input"
-                  aria-label="Research topic"
-                  placeholder="Enter your topic, research question, or claim"
-                ></textarea>
+                <template v-if="isPlanC5Selected">
+                  <div class="plan-c5-home-body">
+                    <div class="plan-c5-search-panel">
+                      <textarea
+                          v-model="planCQuery"
+                          class="plan-c5-search-textarea"
+                          aria-label="Research topic"
+                          placeholder="Enter your topic, research question, or claim"
+                          @keydown.enter.prevent="runPlanCSearch"
+                      ></textarea>
+                      <div class="plan-c5-search-footer">
+                        <span aria-hidden="true">130 words</span>
+                        <button
+                          class="plan-c-search-button"
+                          :class="{ active: hasPlanCQuery }"
+                          type="button"
+                          :disabled="!hasPlanCQuery"
+                          @click="runPlanCSearch"
+                        >
+                          <svg viewBox="0 0 20 20" aria-hidden="true">
+                            <path d="M9 15.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13Z" />
+                            <path d="m13.8 13.8 3.4 3.4" />
+                          </svg>
+                          Search
+                        </button>
+                      </div>
+                    </div>
 
-                <div class="plan-c-suggestions">
-                  <button
-                    v-for="suggestion in planCSuggestions"
-                    :key="suggestion"
-                    type="button"
-                    @click="planCQuery = suggestion"
-                  >
-                    <span>{{ suggestion }}</span>
-                    <svg viewBox="0 0 16 16" aria-hidden="true">
-                      <path d="M5 11 11 5M7 5h4v4" />
-                    </svg>
-                  </button>
-                </div>
+                    <div class="plan-c5-examples">
+                      <p>Or, try searching for:</p>
+                      <div class="plan-c3-example-grid">
+                        <button
+                          v-for="card in planC3PromptCards"
+                          :key="card.kind"
+                          class="plan-c3-example-card"
+                          type="button"
+                          @click="planCQuery = card.text"
+                        >
+                          <span class="plan-c3-example-icon" :data-icon="card.icon" aria-hidden="true">
+                            <svg v-if="card.icon === 'hash'" viewBox="0 0 20 20">
+                              <path d="M7.2 3.8 5.8 16.2M14.2 3.8l-1.4 12.4M4 8h12M3.5 12h12" />
+                            </svg>
+                            <svg v-else-if="card.icon === 'notebook'" viewBox="0 0 20 20">
+                              <path d="M6 4.2h9.2v11.6H6zM4.8 5.5h2.4M4.8 8.2h2.4M4.8 10.9h2.4M4.8 13.6h2.4" />
+                              <path d="M9.2 7.2H13M9.2 10H13" />
+                            </svg>
+                            <svg v-else viewBox="0 0 20 20">
+                              <path d="M6.2 6.9a3.9 3.9 0 0 1 7.6 1.2c0 2.8-3 2.9-3.6 4.9M10.1 16.2h.01" />
+                              <path d="M4.5 3.8h11v12.4h-11z" />
+                            </svg>
+                          </span>
+                          <strong>{{ card.kind }}</strong>
+                          <span>{{ card.text }}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </template>
 
-                <div class="plan-c-input-footer">
-                  <span>130 words</span>
-                  <button
-                    class="plan-c-search-button"
-                    :class="{ active: hasPlanCQuery }"
-                    type="button"
-                    :disabled="!hasPlanCQuery"
-                    @click="runPlanCSearch"
-                  >
-                    <svg viewBox="0 0 20 20" aria-hidden="true">
-                      <path d="M9 15.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13Z" />
-                      <path d="m13.8 13.8 3.4 3.4" />
-                    </svg>
-                    Search
-                  </button>
-                </div>
+                <template v-else-if="isPlanCAdvancedSelected">
+                  <div class="plan-c3-prompt-body">
+                    <textarea
+                      v-model="planCQuery"
+                      class="plan-c3-prompt-input"
+                      aria-label="Research topic"
+                      placeholder="Enter your topic, research question or assignment prompt to find credible sources..."
+                    ></textarea>
+
+                    <div class="plan-c3-examples">
+                      <p>Or, try searching for:</p>
+                      <div class="plan-c3-example-grid">
+                        <button
+                          v-for="card in planC3PromptCards"
+                          :key="card.kind"
+                          class="plan-c3-example-card"
+                          type="button"
+                          @click="planCQuery = card.text"
+                        >
+                          <span class="plan-c3-example-icon" :data-icon="card.icon" aria-hidden="true">
+                            <svg v-if="card.icon === 'hash'" viewBox="0 0 20 20">
+                              <path d="M7.2 3.8 5.8 16.2M14.2 3.8l-1.4 12.4M4 8h12M3.5 12h12" />
+                            </svg>
+                            <svg v-else-if="card.icon === 'notebook'" viewBox="0 0 20 20">
+                              <path d="M6 4.2h9.2v11.6H6zM4.8 5.5h2.4M4.8 8.2h2.4M4.8 10.9h2.4M4.8 13.6h2.4" />
+                              <path d="M9.2 7.2H13M9.2 10H13" />
+                            </svg>
+                            <svg v-else viewBox="0 0 20 20">
+                              <path d="M6.2 6.9a3.9 3.9 0 0 1 7.6 1.2c0 2.8-3 2.9-3.6 4.9M10.1 16.2h.01" />
+                              <path d="M4.5 3.8h11v12.4h-11z" />
+                            </svg>
+                          </span>
+                          <strong>{{ card.kind }}</strong>
+                          <span>{{ card.text }}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="plan-c-input-footer plan-c3-input-footer">
+                    <span>130 words</span>
+                    <button
+                      class="plan-c-search-button"
+                      :class="{ active: hasPlanCQuery }"
+                      type="button"
+                      :disabled="!hasPlanCQuery"
+                      @click="runPlanCSearch"
+                    >
+                      <svg viewBox="0 0 20 20" aria-hidden="true">
+                        <path d="M9 15.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13Z" />
+                        <path d="m13.8 13.8 3.4 3.4" />
+                      </svg>
+                      Search
+                    </button>
+                  </div>
+                </template>
+
+                <template v-else>
+                  <textarea
+                    v-model="planCQuery"
+                    class="plan-c-topic-input"
+                    aria-label="Research topic"
+                    placeholder="Enter your topic, research question, or claim"
+                  ></textarea>
+
+                  <div class="plan-c-suggestions">
+                    <button
+                      v-for="suggestion in planCSuggestions"
+                      :key="suggestion"
+                      type="button"
+                      @click="planCQuery = suggestion"
+                    >
+                      <span>{{ suggestion }}</span>
+                      <svg viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="M5 11 11 5M7 5h4v4" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div class="plan-c-input-footer">
+                    <span>130 words</span>
+                    <button
+                      class="plan-c-search-button"
+                      :class="{ active: hasPlanCQuery }"
+                      type="button"
+                      :disabled="!hasPlanCQuery"
+                      @click="runPlanCSearch"
+                    >
+                      <svg viewBox="0 0 20 20" aria-hidden="true">
+                        <path d="M9 15.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13Z" />
+                        <path d="m13.8 13.8 3.4 3.4" />
+                      </svg>
+                      Search
+                    </button>
+                  </div>
+                </template>
               </template>
 
               <template v-else>
@@ -1085,7 +1357,7 @@ const sources: Source[] = [
                       class="plan-c-clear-search"
                       type="button"
                       aria-label="Clear search"
-                      @click="clearPlanCSearch"
+                      @click="clearPlanCQueryOnly"
                     >
                       <svg viewBox="0 0 20 20" aria-hidden="true">
                         <path d="M5.5 5.5 14.5 14.5M14.5 5.5 5.5 14.5" />
@@ -1111,8 +1383,13 @@ const sources: Source[] = [
                 </div>
 
                 <div v-if="isPlanCGenerating" class="plan-c-generating-steps" aria-live="polite">
+                  <PlanC4Loading
+                    v-if="isPlanC4LikeSelected"
+                    :steps="planCGenerationSteps"
+                    :current-step="planCGeneratingStep"
+                  />
                   <PlanC3Loading
-                    v-if="isPlanC3Selected"
+                    v-else-if="isPlanC3Selected"
                     :steps="planCGenerationSteps"
                     :current-step="planCGeneratingStep"
                   />
@@ -1146,7 +1423,7 @@ const sources: Source[] = [
                 </div>
 
                 <template v-else>
-                  <div class="plan-c-results-bar">
+                  <div class="plan-c-results-bar" :class="{ 'plan-c5-results-bar': isPlanC5Selected }">
                     <strong>About 128 results</strong>
                     <div>
                       <div ref="filterMenuRef" class="filter-control plan-c-filter-control">
@@ -1161,7 +1438,7 @@ const sources: Source[] = [
                           <svg viewBox="0 0 20 20" aria-hidden="true">
                             <path d="M4 5.5h12M6.5 10h7M8.5 14.5h3" />
                           </svg>
-                          Filters
+                          <span v-if="!isPlanC5Selected">Filters</span>
                         </button>
                         <div v-if="isFilterMenuOpen" class="filter-menu" role="dialog" aria-label="Filters">
                           <section class="filter-section">
@@ -1214,7 +1491,7 @@ const sources: Source[] = [
                         >
                           <img class="list-arrow-icon" :src="listArrowIcon" alt="" />
                           {{ selectedSort }}
-                          <svg class="chevron" viewBox="0 0 20 20" aria-hidden="true">
+                          <svg v-if="!isPlanC5Selected" class="chevron" viewBox="0 0 20 20" aria-hidden="true">
                             <path d="m6.5 8.2 3.5 3.5 3.5-3.5" />
                           </svg>
                         </button>
@@ -1242,18 +1519,36 @@ const sources: Source[] = [
                     <article
                       v-for="(source, index) in planCResultSources"
                       :key="`${source.title}-${index}`"
+                      :ref="(element) => setPlanCResultCardRef(element, index)"
                       class="plan-c-result-card"
                       :class="{ selected: selectedPlanCSourceIndex === index }"
                       @click="selectPlanCSource(index)"
                     >
-                      <h3>{{ source.title }}</h3>
-                      <div class="plan-c-result-tags">
+                      <h3>{{ getPlanCDisplayTitle(source) }}</h3>
+                      <p v-if="isPlanC4LikeSelected" class="plan-c-result-meta">
+                        {{ source.year }} &middot; {{ source.author }} &middot; {{ source.venue }} &middot; {{ source.type }}
+                      </p>
+                      <div v-if="isPlanC4Selected" class="plan-c4-card-tags">
+                        <span v-for="tag in getPlanC4CardTags(source)" :key="tag">{{ tag }}</span>
+                      </div>
+                      <div v-else-if="isPlanC5Selected" class="plan-c4-card-tags">
+                        <span v-for="tag in getPlanC5CardTags(source)" :key="tag">{{ tag }}</span>
+                      </div>
+                      <div v-if="!isPlanC4LikeSelected" class="plan-c-result-tags">
                         <span v-for="tag in source.tags" :key="tag">{{ tag }}</span>
                       </div>
                       <p class="plan-c-snapshot"><strong>SNAPSHOT</strong> &middot; {{ source.snapshot }}</p>
-                      <p class="plan-c-result-meta">
+                      <p v-if="!isPlanC4LikeSelected" class="plan-c-result-meta">
                         {{ source.year }} &middot; {{ source.author }} &middot; {{ source.venue }} &middot; {{ source.type }}
                       </p>
+                      <div v-if="isPlanC4LikeSelected" class="plan-c4-useful-tag">
+                        <span class="plan-c4-useful-icon" aria-hidden="true">💡</span>
+                        <span>{{ getPlanCUsefulFirstSentence(source) }}.</span>
+                        <svg viewBox="0 0 20 20" aria-hidden="true">
+                          <path d="M4 10h12" />
+                          <path d="m11 5 5 5-5 5" />
+                        </svg>
+                      </div>
                     </article>
                   </div>
                 </template>
@@ -1261,17 +1556,75 @@ const sources: Source[] = [
             </section>
 
             <section
+              v-if="!(isPlanC5Selected && !isPlanCSearchActive)"
               class="plan-c-empty-pane"
-              :class="{ 'plan-c-details-pane': hasPlanCResults, 'plan-c-generating-pane': isPlanCGenerating }"
+              :class="{
+                'plan-c-details-pane': hasPlanCResults,
+                'plan-c-generating-pane': isPlanCGenerating,
+                'plan-c-empty-pane-c3': isPlanC3Selected && !isPlanCSearchActive,
+                'plan-c-empty-pane-c4': isPlanC4LikeSelected,
+              }"
             >
-              <div v-if="!isPlanCSearchActive" class="plan-c-empty-state">
-                <div class="plan-c-empty-icon" aria-hidden="true">🔍</div>
+              <div v-if="!isPlanCSearchActive && isPlanC4LikeSelected" class="plan-c-result-empty-c4">
+                <header>
+                  <h2>Source Details</h2>
+                </header>
+                <div class="plan-c-result-empty-c4-body">
+                  <div class="plan-c-result-empty-c4-icon" aria-hidden="true">🔍</div>
+                  <p>Waite for Searching...</p>
+                </div>
+              </div>
+              <div
+                v-else-if="isPlanC4LikeSelected && (isPlanCGenerating || isPlanCSourceLoading)"
+                class="plan-c4-source-panel"
+                :class="{ 'plan-c5-loading-panel': isPlanC5Selected && !isPlanC5InlineLoading }"
+                aria-hidden="true"
+              >
+                <header>
+                  <h2>Source Details</h2>
+                </header>
+                <div
+                  class="plan-c4-source-body plan-c4-source-skeleton"
+                  :class="{ 'plan-c5-loading-body': isPlanC5Selected && !isPlanC5InlineLoading }"
+                >
+                  <div class="plan-c4-skeleton-title"></div>
+                  <div class="plan-c4-skeleton-meta"></div>
+                  <div class="plan-c4-skeleton-actions">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                  <div class="plan-c4-divider"></div>
+                  <div class="plan-c4-skeleton-section"></div>
+                  <div class="plan-c4-skeleton-line wide"></div>
+                  <div class="plan-c4-skeleton-line"></div>
+                  <div class="plan-c4-skeleton-line medium"></div>
+                  <div class="plan-c4-skeleton-section findings"></div>
+                  <div class="plan-c4-skeleton-card"></div>
+                  <div class="plan-c4-skeleton-card short"></div>
+                  <div class="plan-c4-skeleton-section abstract"></div>
+                  <div class="plan-c4-skeleton-line wide"></div>
+                  <div class="plan-c4-skeleton-line medium"></div>
+                </div>
+              </div>
+              <div
+                v-else-if="!isPlanCSearchActive"
+                class="plan-c-empty-state"
+                :class="{ 'plan-c-empty-state-c3': isPlanC3Selected }"
+              >
+                <div class="plan-c-empty-icon" aria-hidden="true">
+                  <svg v-if="isPlanC3Selected" viewBox="0 0 32 32">
+                    <path d="M14.2 23.4a9.2 9.2 0 1 1 0-18.4 9.2 9.2 0 0 1 0 18.4Z" />
+                    <path d="m20.8 20.8 6.2 6.2" />
+                  </svg>
+                  <template v-else>🔍</template>
+                </div>
                 <div>
                   <h2>Search to Unlock Source Details</h2>
                   <p>Run a search on the left to explore abstracts, key findings, and useful metrics for your paper.</p>
                 </div>
               </div>
-              <div v-else-if="isPlanCGenerating && isPlanC3Selected" class="plan-c-skeleton-details" aria-hidden="true">
+              <div v-else-if="isPlanCGenerating && isPlanCAdvancedSelected" class="plan-c-skeleton-details" aria-hidden="true">
                 <div class="plan-c-skeleton-line short"></div>
                 <div class="plan-c-skeleton-divider"></div>
                 <div class="plan-c-skeleton-line title"></div>
@@ -1331,12 +1684,77 @@ const sources: Source[] = [
                 </div>
                 <div class="plan-c-skeleton-card"></div>
               </div>
+              <div v-else-if="isPlanC4LikeSelected" class="plan-c4-source-panel">
+                <header>
+                  <h2>Source Details</h2>
+                </header>
+                <div class="plan-c4-source-body">
+                  <section class="plan-c4-detail-summary">
+                    <h3>{{ getPlanCDisplayTitle(selectedPlanCSource) }}</h3>
+                    <p>{{ selectedPlanCSource.year }} &middot; {{ selectedPlanCSource.detailAuthor }} &middot; {{ selectedPlanCSource.venue }} &middot; {{ selectedPlanCSource.type }}</p>
+                    <div class="plan-c4-detail-actions">
+                      <button type="button"><img :src="citeIcon" alt="" />Cite</button>
+                      <button type="button">
+                        <svg viewBox="0 0 20 20" aria-hidden="true">
+                          <path d="M8.5 11.5 11.5 8.5M7.2 8.8l-1.1 1.1a3 3 0 0 0 4.2 4.2l1.1-1.1M12.8 11.2l1.1-1.1a3 3 0 0 0-4.2-4.2L8.6 7" />
+                        </svg>
+                        DOI
+                      </button>
+                      <button type="button"><img :src="collectIcon" alt="" />Save</button>
+                    </div>
+                  </section>
+
+                  <div class="plan-c4-divider"></div>
+
+                  <section class="plan-c4-detail-section">
+                    <h3>Why this source is useful</h3>
+                    <p>{{ selectedPlanCSource.usefulSummary }}</p>
+                  </section>
+
+                  <section class="plan-c4-detail-section plan-c4-findings-section">
+                    <h3>Key Findings (2)</h3>
+                    <div class="plan-c4-finding-list">
+                      <article
+                        v-for="(finding, index) in selectedPlanCSource.findings"
+                        :key="`${selectedPlanCSource.title}-${finding.text}`"
+                        class="plan-c4-finding-card"
+                      >
+                        <div class="plan-c4-finding-quote">
+                          <span class="plan-c4-finding-icon" aria-hidden="true"></span>
+                          <span class="plan-c4-finding-rule" aria-hidden="true"></span>
+                          <p>
+                            <strong>Abstract</strong>
+                            <span>&middot;</span>
+                            “{{ finding.quote }}”
+                          </p>
+                        </div>
+                        <p class="plan-c4-finding-text">
+                          <strong>Finding {{ index + 1 }}</strong>
+                          <span>&middot;</span>
+                          {{ finding.text }}
+                        </p>
+                      </article>
+                    </div>
+                  </section>
+
+                  <section class="plan-c4-detail-section plan-c4-abstract-section">
+                    <h3>Abstract</h3>
+                    <p class="plan-c4-abstract" :class="{ collapsed: !isPlanCAbstractExpanded }">
+                      {{ selectedPlanCSource.abstractIntro }}
+                      <template v-if="isPlanCAbstractExpanded">{{ ` ${selectedPlanCSource.abstractMore}` }}</template>
+                      <button type="button" @click="isPlanCAbstractExpanded = !isPlanCAbstractExpanded">
+                        {{ isPlanCAbstractExpanded ? 'Show Less' : 'Show More' }}
+                      </button>
+                    </p>
+                  </section>
+                </div>
+              </div>
               <div v-else class="plan-c-source-details">
                 <header>
                   <h2>Source Details</h2>
                 </header>
                 <section class="plan-c-detail-summary">
-                  <h3>{{ selectedPlanCSource.title }}</h3>
+                  <h3>{{ getPlanCDisplayTitle(selectedPlanCSource) }}</h3>
                   <p>{{ selectedPlanCSource.year }} &middot; {{ selectedPlanCSource.detailAuthor }} &middot; {{ selectedPlanCSource.venue }} &middot; {{ selectedPlanCSource.type }}</p>
                   <div class="plan-c-detail-actions">
                     <button type="button"><img :src="citeIcon" alt="" />Cite</button>
@@ -1354,22 +1772,71 @@ const sources: Source[] = [
                     </button>
                   </p>
                 </section>
-                <section class="plan-c-detail-section">
-                  <h3>Why this source is useful</h3>
-                  <ul>
-                    <li v-for="reason in selectedPlanCSource.usefulReasons" :key="reason">{{ reason }}</li>
-                  </ul>
-                </section>
-                <section class="plan-c-detail-section">
-                  <h3>Key Findings (2)</h3>
-                  <div
-                    v-for="(finding, index) in selectedPlanCSource.findings"
-                    :key="finding.text"
-                    class="plan-c-finding-card"
-                  >
-                    <p><strong>ABSTRACT</strong> &middot; “{{ finding.quote }}”</p>
-                    <p><b>Finding {{ index + 1 }}</b> &middot; {{ finding.text }}</p>
+                <section v-if="isPlanCAdvancedSelected" class="plan-c-detail-section plan-c-snapshot-section">
+                  <h3>Snapshot</h3>
+                  <div class="plan-c-snapshot-table" role="table" aria-label="Paper snapshot">
+                    <div class="plan-c-snapshot-row plan-c-snapshot-head" role="row">
+                      <span role="columnheader">Field</span>
+                      <span role="columnheader">Value</span>
+                    </div>
+                    <div
+                      v-for="row in selectedPlanCSnapshotRows"
+                      :key="row.field"
+                      class="plan-c-snapshot-row"
+                      role="row"
+                    >
+                      <span class="plan-c-snapshot-field" role="cell">
+                        <svg v-if="row.field === 'Methods'" viewBox="0 0 20 20" aria-hidden="true">
+                          <path d="M6.5 4.5h7M5 8h10M6.5 11.5h7M8 15h4" />
+                          <path d="M4.5 3.5h11v13h-11z" />
+                        </svg>
+                        <svg v-else-if="row.field === 'Outcomes'" viewBox="0 0 20 20" aria-hidden="true">
+                          <path d="M10 3.5v13M5.2 7.5h9.6M6.2 7.5l-2.2 5h4.4zM13.8 7.5l-2.2 5h4.4z" />
+                        </svg>
+                        <svg v-else viewBox="0 0 20 20" aria-hidden="true">
+                          <path d="M4.5 4.5h11v11h-11z" />
+                          <path d="m6.8 10.4 2 2 4.4-5" />
+                        </svg>
+                        {{ row.field }}
+                      </span>
+                      <span class="plan-c-snapshot-value" role="cell">{{ row.value }}</span>
+                    </div>
                   </div>
+                </section>
+                <section class="plan-c-detail-section plan-c-useful-section">
+                  <h3>Why this source is useful</h3>
+                  <p class="plan-c-useful-summary">{{ selectedPlanCSource.usefulSummary }}</p>
+                </section>
+                <section
+                  class="plan-c-detail-section"
+                  :class="{ 'plan-c-evidence-section': isPlanCAdvancedSelected }"
+                >
+                  <h3>{{ isPlanCAdvancedSelected ? 'Key Evidence (2)' : 'Key Findings (2)' }}</h3>
+                  <template v-if="isPlanCAdvancedSelected">
+                    <div
+                      v-for="(finding, index) in selectedPlanCSource.findings"
+                      :key="finding.text"
+                      class="plan-c-evidence-card"
+                    >
+                      <span class="plan-c-evidence-icon" aria-hidden="true"></span>
+                      <span class="plan-c-evidence-divider" aria-hidden="true"></span>
+                      <p>
+                        <strong>{{ index === 0 ? 'ABSTRACT' : 'INSTRUCTION' }}</strong>
+                        <span>&middot;</span>
+                        “{{ finding.quote }}”
+                      </p>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div
+                      v-for="(finding, index) in selectedPlanCSource.findings"
+                      :key="finding.text"
+                      class="plan-c-finding-card"
+                    >
+                      <p><strong>ABSTRACT</strong> &middot; “{{ finding.quote }}”</p>
+                      <p><b>Finding {{ index + 1 }}</b> &middot; {{ finding.text }}</p>
+                    </div>
+                  </template>
                 </section>
               </div>
             </section>
@@ -1409,7 +1876,7 @@ const sources: Source[] = [
           </section>
 
           <section class="results-pane">
-            <div class="results-header">
+            <div v-if="!selectedPlanASource || isPlanBSelected" class="results-header">
               <template v-if="selectedProject === 'AI Research 方案B'">
                 <h2>Research Result</h2>
                 <div class="result-view-toggle" aria-label="Research result view">
@@ -1720,6 +2187,97 @@ const sources: Source[] = [
               </section>
             </div>
 
+            <div v-else-if="selectedPlanASource && !isPlanBSelected" class="plan-a-detail-page">
+              <div class="plan-a-detail-nav">
+                <button type="button" @click="closePlanASourceDetail">
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="m12 5-5 5 5 5" />
+                  </svg>
+                  Back to Source List
+                </button>
+              </div>
+
+              <section class="plan-a-detail-hero">
+                <h3>{{ selectedPlanASource.title }}</h3>
+                <div class="plan-a-detail-meta">
+                  <span>{{ selectedPlanASource.year }}</span>
+                  <span>&middot;</span>
+                  <span>{{ selectedPlanASource.author }} ... +6 more</span>
+                  <span>&middot;</span>
+                  <span>NeurIPS</span>
+                  <span>&middot;</span>
+                  <span>{{ selectedPlanASource.type }}</span>
+                </div>
+                <div class="plan-a-detail-actions">
+                  <button type="button" @click="openCitationDialog(selectedPlanASource)">
+                    <img :src="citeIcon" alt="" />
+                    Cite
+                  </button>
+                  <button type="button">
+                    <svg viewBox="0 0 20 20" aria-hidden="true">
+                      <path d="M8.2 10.8 11.6 7.4a2.3 2.3 0 0 1 3.3 3.3l-4.4 4.4a3.2 3.2 0 0 1-4.5-4.5l5.2-5.2" />
+                    </svg>
+                    DOI
+                  </button>
+                  <button type="button">
+                    <img :src="collectIcon" alt="" />
+                    Save
+                  </button>
+                </div>
+              </section>
+
+              <section class="plan-a-detail-section">
+                <h3>Why this source is useful</h3>
+                <p>
+                  This source is useful for {{ selectedPlanASource.bestUsedFor }}. It explains the core relationship
+                  between behavioral prompts, motivation, and learner action, so it can support claims about where this
+                  article fits in the background, framing, or argument section of the paper.
+                </p>
+              </section>
+
+              <section class="plan-a-detail-section">
+                <h3>Key Findings ({{ selectedPlanASource.quoteDetails.length }})</h3>
+                <div class="plan-a-detail-findings">
+                  <article
+                    v-for="(quote, index) in selectedPlanASource.quoteDetails"
+                    :key="`${selectedPlanASource.title}-${quote.label}-detail`"
+                    class="plan-a-detail-finding"
+                  >
+                    <div class="plan-a-detail-quote">
+                      <span class="plan-a-detail-quote-icon" aria-hidden="true"></span>
+                      <span class="plan-a-detail-quote-rule" aria-hidden="true"></span>
+                      <p>
+                        <strong>Abstract</strong>
+                        <span>&middot;</span>
+                        “{{ quote.lead }} {{ quote.body }}”
+                      </p>
+                    </div>
+                    <p class="plan-a-detail-finding-text">
+                      <strong>Finding {{ index + 1 }}</strong>
+                      <span>&middot;</span>
+                      {{ selectedPlanASource.relevanceText || selectedPlanASource.takeaway }}
+                    </p>
+                  </article>
+                </div>
+              </section>
+
+              <section class="plan-a-detail-section plan-a-detail-abstract">
+                <h3>Abstract</h3>
+                <p
+                  class="plan-a-detail-abstract-text"
+                  :class="{ collapsed: !isPlanAAbstractExpanded }"
+                >
+                  {{ selectedPlanASource.takeaway }}.
+                  <template v-if="isPlanAAbstractExpanded">
+                    {{ selectedPlanASource.suggestedSentence }}
+                  </template>
+                  <button type="button" @click="isPlanAAbstractExpanded = !isPlanAAbstractExpanded">
+                    {{ isPlanAAbstractExpanded ? 'Show Less' : 'Show More' }}
+                  </button>
+                </p>
+              </section>
+            </div>
+
             <div v-else class="source-list">
               <article
                 v-for="source in displayedSources"
@@ -1730,117 +2288,44 @@ const sources: Source[] = [
                   'source-card-plan-b': isPlanBSelected,
                   'source-card-expanded': isQuoteExpanded(source),
                 }"
+                :tabindex="!isPlanBSelected ? 0 : undefined"
+                :role="!isPlanBSelected ? 'button' : undefined"
+                @click="openPlanASourceDetail(source)"
+                @keydown.enter.prevent="openPlanASourceDetail(source)"
+                @keydown.space.prevent="openPlanASourceDetail(source)"
               >
                 <template v-if="!isPlanBSelected">
-                  <div class="plan-a-card-actions" aria-label="Source actions">
-                    <button
-                      class="plan-a-cite-action"
-                      type="button"
-                      aria-label="Cite source"
-                      @click.stop="openCitationDialog(source)"
-                    >
-                      <img :src="citeIcon" alt="" />
-                      <span>Cite</span>
-                    </button>
-                    <button class="plan-a-save-action" type="button" aria-label="Save source">
-                      <img :src="collectIcon" alt="" />
-                    </button>
-                  </div>
                   <div class="plan-a-card-main">
                     <h3>{{ source.title }}</h3>
                     <div class="plan-a-meta">
                       <strong>{{ source.year }}</strong>
                       <span>&middot;</span>
-                      <span class="plan-a-citations">
-                        <strong>{{ source.citationCount }}</strong>
-                        citations
-                      </span>
-                      <span>&middot;</span>
                       <span>{{ source.author }}</span>
                       <span>&middot;</span>
-                      <span class="plan-a-type">
-                        <svg viewBox="0 0 16 16" aria-hidden="true">
-                          <path d="M3.5 2.8h3.4c.6 0 1.1.5 1.1 1.1v9.3c0-.6-.5-1.1-1.1-1.1H3.5zM8 3.9c0-.6.5-1.1 1.1-1.1h3.4v9.3H9.1c-.6 0-1.1.5-1.1 1.1" />
-                        </svg>
-                        {{ source.type }}
+                      <span>{{ source.type }}</span>
+                      <span>&middot;</span>
+                      <span class="plan-a-citations">
+                        <strong>{{ source.citationCount }}</strong>
+                        Citations
                       </span>
                     </div>
                   </div>
 
-                  <div class="plan-a-relevance">
-                    <strong>{{ source.relevanceLabel }}</strong>
-                    <span>&middot;</span>
-                    <span>{{ source.relevanceText }}</span>
+                  <div class="plan-a-snapshot">
+                    <p>
+                      <strong>SNAPSHOT &middot;</strong>
+                      {{ source.takeaway }}
+                    </p>
                   </div>
 
-                  <div class="plan-a-best-used">
-                    <strong>Best used for:</strong>
-                    <span>{{ source.bestUsedFor }}</span>
-                  </div>
-
-                  <section class="suggested-sentence">
-                    <div class="suggested-sentence-header">
-                      <h4>Suggested sentence</h4>
-                      <button
-                        type="button"
-                        aria-label="Copy suggested sentence"
-                        @click.stop="copySuggestedSentence(source)"
-                      >
-                        <svg viewBox="0 0 20 20" aria-hidden="true">
-                          <path d="M7 7.5h8v9H7z" />
-                          <path d="M5 13.5H4.5A1.5 1.5 0 0 1 3 12V4.5A1.5 1.5 0 0 1 4.5 3H12a1.5 1.5 0 0 1 1.5 1.5V5" />
-                        </svg>
-                      </button>
-                    </div>
-                    <p>{{ source.suggestedSentence }}</p>
-                  </section>
-
-                  <div v-if="isPlanAExpanded(source)" class="plan-a-expanded-content">
-                    <button
-                      class="other-ways-header"
-                      type="button"
-                      :aria-expanded="isPlanAExpanded(source)"
-                      @click="togglePlanAExpansion(source)"
-                    >
-                      <span>Other ways to use:</span>
-                      <svg viewBox="0 0 20 20" aria-hidden="true">
-                        <path d="m6.5 11.8 3.5-3.5 3.5 3.5" />
-                      </svg>
-                    </button>
-                    <section
-                      v-for="way in source.otherWays"
-                      :key="`${source.title}-${way.title}`"
-                      class="suggested-sentence other-way-card"
-                    >
-                      <div class="suggested-sentence-header">
-                        <h4>{{ way.title }}</h4>
-                        <button
-                          type="button"
-                          :aria-label="`Copy ${way.title}`"
-                          @click.stop="copyPlainText(way.sentence)"
-                        >
-                          <svg viewBox="0 0 20 20" aria-hidden="true">
-                            <path d="M7 7.5h8v9H7z" />
-                            <path d="M5 13.5H4.5A1.5 1.5 0 0 1 3 12V4.5A1.5 1.5 0 0 1 4.5 3H12a1.5 1.5 0 0 1 1.5 1.5V5" />
-                          </svg>
-                        </button>
-                      </div>
-                      <p>{{ way.sentence }}</p>
-                    </section>
-                  </div>
-
-                  <button
-                    v-else
-                    class="show-other-ways"
-                    type="button"
-                    :aria-expanded="isPlanAExpanded(source)"
-                    @click="togglePlanAExpansion(source)"
-                  >
-                    <span>Show other ways to use</span>
+                  <div class="plan-a-useful-pill">
+                    <span class="plan-a-useful-icon" aria-hidden="true">&#128161;</span>
+                    <span>This source is useful for {{ source.bestUsedFor }}</span>
                     <svg viewBox="0 0 20 20" aria-hidden="true">
-                      <path d="m6.5 8.2 3.5 3.5 3.5-3.5" />
+                      <path d="M4 10h12" />
+                      <path d="m11 5 5 5-5 5" />
                     </svg>
-                  </button>
+                  </div>
                 </template>
 
                 <template v-else>
