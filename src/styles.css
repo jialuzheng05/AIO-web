@@ -5344,7 +5344,7 @@ svg {
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .detector-header {
     grid-template-columns: minmax(140px, 1fr) auto minmax(140px, 1fr);
   }
@@ -5359,33 +5359,70 @@ svg {
   }
 
   .detector-tool-card {
-    --detector-rail-width: 60px !important;
+    --detector-rail-width: auto !important;
     height: auto;
     min-height: 820px;
-    grid-template-columns: 60px minmax(0, 1fr);
-    grid-template-rows: minmax(340px, auto) 1px minmax(480px, auto);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(340px, auto) 1px minmax(480px, auto);
+    transition: none;
   }
 
   .detector-tool-rail {
-    grid-row: 1 / span 3;
+    display: flex;
+    grid-column: 1;
+    grid-row: 1;
+    height: 57px;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-right: 0;
+    border-bottom: 1px solid #eeeeee;
+    padding: 8px 12px;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .detector-tool-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .detector-tool-rail button {
+    width: max-content;
+    min-width: max-content;
+    height: 40px;
+    flex: 0 0 auto;
+    gap: 8px;
+    padding: 0 12px;
+    border-radius: 10px;
+  }
+
+  .detector-tool-label {
+    display: inline;
+    overflow: visible;
+    font-size: 14px;
+    line-height: 22px;
+    opacity: 1 !important;
+    transform: none !important;
   }
 
   .detector-input-pane {
-    grid-column: 2;
-    grid-row: 1;
+    grid-column: 1;
+    grid-row: 2;
     min-height: 340px;
   }
 
   .detector-card-divider {
-    grid-column: 2;
-    grid-row: 2;
+    grid-column: 1;
+    grid-row: 3;
     width: 100%;
     height: 1px;
   }
 
   .detector-report-pane {
-    grid-column: 2;
-    grid-row: 3;
+    grid-column: 1;
+    grid-row: 4;
     min-height: 480px;
   }
 
@@ -5398,8 +5435,8 @@ svg {
   .detector-tool-card.rail-expanded .detector-tool-label,
   .detector-tool-card:has(.detector-tool-rail:hover) .detector-tool-label,
   .detector-tool-card:has(.detector-tool-rail:focus-within) .detector-tool-label {
-    opacity: 0;
-    transform: translateX(-5px);
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -5469,10 +5506,9 @@ svg {
   }
 
   .detector-tool-rail {
-    display: grid;
+    display: flex;
     grid-column: 1;
     grid-row: 1;
-    grid-template-columns: repeat(7, minmax(40px, 1fr));
     height: auto;
     gap: 4px;
     overflow-x: auto;
@@ -5482,14 +5518,18 @@ svg {
   }
 
   .detector-tool-rail button {
-    width: 40px;
+    width: max-content;
+    min-width: max-content;
     height: 40px;
-    justify-content: center;
-    padding: 0;
+    justify-content: flex-start;
+    gap: 7px;
+    padding: 0 10px;
   }
 
   .detector-tool-label {
-    display: none;
+    display: inline;
+    font-size: 13px;
+    line-height: 20px;
   }
 
   .detector-input-pane,
