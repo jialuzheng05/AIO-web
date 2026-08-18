@@ -5371,15 +5371,15 @@ svg {
     display: flex;
     grid-column: 1;
     grid-row: 1;
-    height: 57px;
+    height: 72px;
     flex-direction: row;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     overflow-x: auto;
     overflow-y: hidden;
     border-right: 0;
     border-bottom: 1px solid #eeeeee;
-    padding: 8px 12px;
+    padding: 16px;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
   }
@@ -5393,16 +5393,23 @@ svg {
     min-width: max-content;
     height: 40px;
     flex: 0 0 auto;
-    gap: 8px;
-    padding: 0 12px;
-    border-radius: 10px;
+    gap: 4px;
+    padding: 0 12px 0 0;
+    border-radius: 12px;
+  }
+
+  .detector-tool-icon {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
   }
 
   .detector-tool-label {
     display: inline;
     overflow: visible;
-    font-size: 14px;
-    line-height: 22px;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 24px;
     opacity: 1 !important;
     transform: none !important;
   }
@@ -5509,12 +5516,12 @@ svg {
     display: flex;
     grid-column: 1;
     grid-row: 1;
-    height: auto;
-    gap: 4px;
+    height: 72px;
+    gap: 8px;
     overflow-x: auto;
     border-right: 0;
     border-bottom: 1px solid #eeeeee;
-    padding: 8px;
+    padding: 16px;
   }
 
   .detector-tool-rail button {
@@ -5522,14 +5529,14 @@ svg {
     min-width: max-content;
     height: 40px;
     justify-content: flex-start;
-    gap: 7px;
-    padding: 0 10px;
+    gap: 4px;
+    padding: 0 12px 0 0;
   }
 
   .detector-tool-label {
     display: inline;
-    font-size: 13px;
-    line-height: 20px;
+    font-size: 16px;
+    line-height: 24px;
   }
 
   .detector-input-pane,
