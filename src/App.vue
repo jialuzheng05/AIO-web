@@ -96,8 +96,19 @@ const planCGenerationSteps = [
   'Preparing your results',
 ]
 
-const projects = ['AI Research 方案C', 'AI Research 方案C-2', 'AI Research 方案C-3', 'AI Research 方案C-4', 'AI Research 方案C-5', 'AI research 方案A', 'AI Research 方案B'] as const
+const projects = [
+  'AI Research 方案C',
+  'AI Research 方案C-2',
+  'AI Research 方案C-3',
+  'AI Research 方案C-4',
+  'AI Research 方案C-5',
+  'AI research 方案A',
+  'AI Research 方案B',
+  '加侧边栏展开',
+] as const
 type ProjectName = (typeof projects)[number]
+const projectNavItems = ['AI Research', '加侧边栏展开'] as const
+type ProjectNavName = (typeof projectNavItems)[number]
 const debugProjectOptions: Array<{ label: string; project: ProjectName }> = [
   { label: '方案A', project: 'AI research 方案A' },
   { label: '方案C', project: 'AI Research 方案C' },
@@ -121,6 +132,11 @@ const isPlanCSelected = computed(() =>
   selectedProject.value === 'AI Research 方案C-4' ||
   selectedProject.value === 'AI Research 方案C-5',
 )
+const isSidebarExpandProjectSelected = computed(() => selectedProject.value === '加侧边栏展开')
+const selectedProjectNav = computed<ProjectNavName>(() =>
+  isSidebarExpandProjectSelected.value ? '加侧边栏展开' : 'AI Research',
+)
+const isDetectorRailExpanded = ref(false)
 const planCQuery = ref('')
 const hasPlanCQuery = computed(() => planCQuery.value.trim().length > 0)
 const hasPlanCResults = ref(false)
@@ -413,6 +429,18 @@ const selectProject = (project: ProjectName) => {
     expandedQuoteSourceKey.value = null
     expandedPlanASourceKey.value = null
   }
+}
+
+const selectProjectNav = (project: ProjectNavName) => {
+  if (project === 'AI Research') {
+    selectedProject.value = 'AI Research 方案C-5'
+  } else {
+    selectedProject.value = project
+  }
+
+  isProjectMenuOpen.value = false
+  isSortMenuOpen.value = false
+  isFilterMenuOpen.value = false
 }
 
 const toggleSortMenu = () => {
@@ -1053,20 +1081,20 @@ const sources: Source[] = [
             @click.stop="toggleProjectMenu"
             @keydown.esc="isProjectMenuOpen = false"
           >
-            <span>{{ selectedProject }}</span>
+            <span>{{ selectedProjectNav }}</span>
             <svg viewBox="0 0 20 20" aria-hidden="true">
               <path d="m6.5 8.2 3.5 3.5 3.5-3.5" />
             </svg>
           </button>
           <div v-if="isProjectMenuOpen" class="project-menu" role="menu">
             <button
-              v-for="project in projects"
+              v-for="project in projectNavItems"
               :key="project"
               type="button"
               role="menuitemradio"
-              :aria-checked="selectedProject === project"
-              :class="{ active: selectedProject === project }"
-              @click.stop="selectProject(project)"
+              :aria-checked="selectedProjectNav === project"
+              :class="{ active: selectedProjectNav === project }"
+              @click.stop="selectProjectNav(project)"
             >
               {{ project }}
             </button>
@@ -1081,7 +1109,229 @@ const sources: Source[] = [
       </div>
     </header>
 
-    <main class="app-shell">
+    <main v-if="isSidebarExpandProjectSelected" class="sidebar-expand-page" aria-label="AI Detector with expanded sidebar">
+      <div class="detector-aurora" aria-hidden="true"></div>
+
+      <header class="detector-header">
+        <a class="detector-logo" href="#" aria-label="Solvely.ai">
+          <span class="detector-logo-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M7 4.5h10A2.5 2.5 0 0 1 19.5 7v10a2.5 2.5 0 0 1-2.5 2.5H7A2.5 2.5 0 0 1 4.5 17V7A2.5 2.5 0 0 1 7 4.5Z" />
+              <path d="M8.2 12c1.2-2.2 2.5-3.3 3.8-3.3 1 0 1.8.5 2.6 1.5M15.8 12c-1.2 2.2-2.5 3.3-3.8 3.3-1 0-1.8-.5-2.6-1.5" />
+              <path d="m7.5 8.9 2.1 2M14.4 13.1l2.1 2M16.5 8.9l-2.1 2M9.6 13.1l-2.1 2" />
+            </svg>
+          </span>
+          <span>Solvely.ai</span>
+        </a>
+
+        <nav class="detector-site-nav" aria-label="Solvely navigation">
+          <a href="#">
+            AI Study Tools
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6.5 8.2 3.5 3.5 3.5-3.5" /></svg>
+          </a>
+          <a href="#">
+            Resources
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6.5 8.2 3.5 3.5 3.5-3.5" /></svg>
+          </a>
+          <a href="#">Pricing</a>
+        </nav>
+
+        <div class="detector-auth">
+          <a class="detector-try" href="#">Try For Free</a>
+          <a href="#">Log in</a>
+        </div>
+      </header>
+
+      <section class="detector-hero">
+        <div class="detector-trust-badge">
+          <span class="detector-avatar-stack" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+          <span>Trusted by <strong>24M+</strong> users · <strong>39K+</strong> are checking their text right now</span>
+        </div>
+        <h1><span>AI Detector</span> with Fewer False Positives</h1>
+        <p>Run multi-engine AI detection with 98.7% accuracy, then humanize in one click</p>
+      </section>
+
+      <section class="detector-tool-card" :class="{ 'rail-expanded': isDetectorRailExpanded }" aria-label="AI detector input and report">
+        <aside
+          class="detector-tool-rail"
+          aria-label="Tool switcher"
+          @mouseenter="isDetectorRailExpanded = true"
+          @mouseleave="isDetectorRailExpanded = false"
+          @focusin="isDetectorRailExpanded = true"
+          @focusout="isDetectorRailExpanded = false"
+        >
+          <button class="active" type="button" aria-label="AI Detector">
+            <span class="detector-tool-icon" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M10 4.3a5.7 5.7 0 1 0 5.7 5.7" /><path d="M10 7.4a2.6 2.6 0 1 0 2.6 2.6" /><path d="M10 10h6.2M14.2 7.6l2 2.4-2 2.4" /></svg></span>
+            <span class="detector-tool-label">AI Detector</span>
+          </button>
+          <button type="button" aria-label="AI Humanizer">
+            <span class="detector-tool-icon" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M7.2 14.8v-1.2a4.4 4.4 0 0 1-1.7-3.5V8a4.5 4.5 0 1 1 9 0v6.8" /><path d="M8.4 15.5h5.2M8.9 18h4.2" /></svg></span>
+            <span class="detector-tool-label">AI Humanizer</span>
+          </button>
+          <button type="button" aria-label="Plagiarism Checker">
+            <span class="detector-tool-icon" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M6.4 3.8h5.9l2.9 2.9v9.5H6.4z" /><path d="M12.1 3.9v3h3M8.4 10h4M8.4 12.7h4" /></svg></span>
+            <span class="detector-tool-label">Plagiarism Checker</span>
+          </button>
+          <button type="button" aria-label="Citation Generator">
+            <span class="detector-tool-icon" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M7 7.5H5.8A1.8 1.8 0 0 0 4 9.3v1.2A1.8 1.8 0 0 0 5.8 12H7v-1.6H5.9V9.1H7zM13 7.5h1.2A1.8 1.8 0 0 1 16 9.3v1.2a1.8 1.8 0 0 1-1.8 1.5H13v-1.6h1.1V9.1H13z" /></svg></span>
+            <span class="detector-tool-label">Citation Generator</span>
+          </button>
+          <button type="button" aria-label="AI Paraphraser">
+            <span class="detector-tool-icon" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M5 7h8.8l-2-2M15 13H6.2l2 2" /></svg></span>
+            <span class="detector-tool-label">AI Paraphraser</span>
+          </button>
+          <button type="button" aria-label="AI Research">
+            <span class="detector-tool-icon" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M8.8 3.8h2.4M10 3.8v4.4l-3.7 6.5a1.2 1.2 0 0 0 1 1.8h5.4a1.2 1.2 0 0 0 1-1.8L10 8.2" /><path d="M7.7 12.2h4.6" /></svg></span>
+            <span class="detector-tool-label">AI Research</span>
+          </button>
+          <button type="button" aria-label="Word Counter">
+            <span class="detector-tool-icon detector-word-counter-icon" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M6.4 5.2 5 14.8M11.5 5.2l-1.4 9.6M3.8 8.6h10.8M3.1 11.4h10.8" /></svg></span>
+            <span class="detector-tool-label">Word Counter</span>
+          </button>
+        </aside>
+
+        <div class="detector-input-pane">
+          <div class="detector-pane-header">
+            <h2>Original text:</h2>
+            <button type="button" class="detector-history">
+              <span aria-hidden="true">↺</span>
+              History
+            </button>
+          </div>
+          <div class="detector-filled-input">
+            <p>
+              <span class="detector-flagged-copy">Spring is a beautiful season that brings warmth and new life to the environment.</span>
+              <span class="detector-more-flags">+3 more</span>
+              During this time, flowers begin to bloom and trees turn green again. The weather becomes more pleasant, and people often spend more time outdoors. Many individuals feel happier and more energetic as the days grow longer.
+            </p>
+          </div>
+          <footer class="detector-input-footer">
+            <span>130 words</span>
+            <div class="detector-input-actions">
+              <button type="button" class="detector-clear-button">Clear</button>
+              <button type="button" class="detector-check-button">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m10 3.8 1.1 3.8 3.7 1.4-3.7 1.4L10 14.2l-1.1-3.8L5.2 9l3.7-1.4z" /></svg>
+                Check for AI
+              </button>
+            </div>
+          </footer>
+        </div>
+
+        <div class="detector-card-divider" aria-hidden="true"></div>
+
+        <div class="detector-report-pane">
+          <div class="detector-pane-header">
+            <h2>AI detection report</h2>
+            <div class="detector-style-selector" aria-hidden="true">
+              <span>Style:</span>
+              <button type="button">
+                Original
+                <svg viewBox="0 0 20 20"><path d="m6.5 8.2 3.5 3.5 3.5-3.5" /></svg>
+              </button>
+            </div>
+          </div>
+          <div class="detector-result-content">
+            <div class="detector-result-warning">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <circle cx="10" cy="10" r="7" />
+                <path d="M10 6.3v4.6M10 13.8v.1" />
+              </svg>
+              <span>You text has been changed. Run again to see the updated result</span>
+            </div>
+
+            <section class="detector-score-card" aria-label="AI likelihood score">
+              <div class="detector-score-gauge" aria-hidden="true">
+                <svg viewBox="0 0 154 86">
+                  <path d="M12 73a65 65 0 0 1 130 0" />
+                </svg>
+                <div>
+                  <strong>100<span>%</span></strong>
+                  <small>AI possibility</small>
+                </div>
+              </div>
+              <div class="detector-score-summary">
+                <div class="detector-score-heading">
+                  <strong>Your text appears</strong>
+                  <span>High AI Likelihood</span>
+                </div>
+                <button type="button" class="detector-remove-ai">
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="m8.3 4.3 5 5M6.8 8l5.2 5.2M5.2 9.5l5.3 5.3M4.6 10.1l-.8 4.5 4.5-.8" />
+                    <path d="m9.1 3.5 7.4 7.4-2.3 2.3-7.4-7.4z" />
+                  </svg>
+                  Remove AI
+                </button>
+              </div>
+            </section>
+
+            <section class="detector-cross-check" aria-label="Cross check results">
+              <h3>Cross check results</h3>
+              <div class="detector-cross-list">
+                <div class="detector-cross-row">
+                  <div class="detector-engine-name">
+                    <span class="detector-engine-icon fingerprint" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M12 3.7a7 7 0 0 0-7 7M12 6.6a4.1 4.1 0 0 0-4.1 4.1c0 3.1-.7 5.1-1.8 6.7M12 9.3a1.4 1.4 0 0 0-1.4 1.4c0 4.2-1.1 7-2.5 9M14.8 4.3a7 7 0 0 1 4.2 6.4c0 3.5-.6 6.4-1.8 9M14.9 7.8a4.1 4.1 0 0 1 1.2 2.9c0 4-.6 6.8-1.7 9.4M13.3 12.1c-.1 3.6-.6 6.1-1.4 8" /></svg>
+                    </span>
+                    <strong>ZeroGPT</strong>
+                  </div>
+                  <span class="detector-cross-score">80% AI possibility</span>
+                  <span class="detector-likelihood-pill">High likelihood</span>
+                </div>
+
+                <div class="detector-cross-row locked">
+                  <div class="detector-engine-name">
+                    <span class="detector-engine-icon turnitin" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M7 4.5h8.8v15H7z" /><path d="m10.1 8.1-2.4 2.4 2.4 2.4M7.7 10.5h9.2M13.9 8.1l2.4 2.4-2.4 2.4" /></svg>
+                    </span>
+                    <strong>Turnitin</strong>
+                    <span class="detector-pro-tag">Pro</span>
+                  </div>
+                  <span class="detector-cross-score blurred">20% AI possibility</span>
+                  <button type="button" class="detector-unlock-button">
+                    <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3.4" y="7" width="9.2" height="6.2" rx="1.4" /><path d="M5.3 7V5.2a2.7 2.7 0 0 1 5.4 0V7" /></svg>
+                    Unlock
+                  </button>
+                </div>
+
+                <div class="detector-cross-row locked">
+                  <div class="detector-engine-name">
+                    <span class="detector-engine-icon gptzero" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.4" /><circle cx="12" cy="12" r="3.8" /><path d="M12 12h7.5M17 9.3l2.5 2.7-2.5 2.7" /></svg>
+                    </span>
+                    <strong>GPTZero</strong>
+                    <span class="detector-pro-tag">Pro</span>
+                  </div>
+                  <span class="detector-cross-score blurred">20% AI possibility</span>
+                  <button type="button" class="detector-unlock-button">
+                    <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3.4" y="7" width="9.2" height="6.2" rx="1.4" /><path d="M5.3 7V5.2a2.7 2.7 0 0 1 5.4 0V7" /></svg>
+                    Unlock
+                  </button>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <footer class="detector-proof-row">
+        <div class="detector-rating">
+          <span aria-hidden="true">★★★★★</span>
+          <p><strong>4.8/5</strong> Based on on <strong>39K</strong> ratings on the App Store</p>
+        </div>
+        <div class="detector-engines">
+          <span>Double check by:</span>
+          <strong>ZeroGPT</strong>
+          <strong>GPTZero</strong>
+          <strong>turnitin</strong>
+        </div>
+      </footer>
+    </main>
+
+    <main v-else class="app-shell">
     <aside class="sidebar">
       <div class="brand-row">
         <div class="brand-mark" aria-hidden="true">
