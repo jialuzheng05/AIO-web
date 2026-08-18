@@ -97,6 +97,7 @@ const planCGenerationSteps = [
 ]
 
 const projects = [
+  '加侧边栏展开',
   'AI Research 方案C',
   'AI Research 方案C-2',
   'AI Research 方案C-3',
@@ -104,10 +105,9 @@ const projects = [
   'AI Research 方案C-5',
   'AI research 方案A',
   'AI Research 方案B',
-  '加侧边栏展开',
 ] as const
 type ProjectName = (typeof projects)[number]
-const projectNavItems = ['AI Research', '加侧边栏展开'] as const
+const projectNavItems = ['加侧边栏展开', 'AI Research'] as const
 type ProjectNavName = (typeof projectNavItems)[number]
 const debugProjectOptions: Array<{ label: string; project: ProjectName }> = [
   { label: '方案A', project: 'AI research 方案A' },
@@ -117,7 +117,7 @@ const debugProjectOptions: Array<{ label: string; project: ProjectName }> = [
   { label: '方案C-4', project: 'AI Research 方案C-4' },
   { label: '方案C-5', project: 'AI Research 方案C-5' },
 ]
-const selectedProject = ref<ProjectName>('AI Research 方案C-5')
+const selectedProject = ref<ProjectName>(projects[0])
 const isPlanBSelected = computed(() => selectedProject.value === 'AI Research 方案B')
 const isPlanC2Selected = computed(() => selectedProject.value === 'AI Research 方案C-2')
 const isPlanC3Selected = computed(() => selectedProject.value === 'AI Research 方案C-3')

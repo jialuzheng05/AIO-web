@@ -10,3 +10,7 @@ npm run dev
 ```
 
 The Vite dev server defaults to `http://127.0.0.1:5173/`.
+
+## Project conventions
+
+Repository conventions for project navigation and default project selection are documented in [`AGENTS.md`](./AGENTS.md).
